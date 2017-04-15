@@ -1,0 +1,17 @@
+### SBT
+dist/*
+target/
+project/boot/
+project/plugins/project/
+.cache
+.lib/
+
+### JetBrains
+.idea
+
+###Scala
+*.class
+*.log
+
+### macOS template
+*.DS_Store
