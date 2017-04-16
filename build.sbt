@@ -13,6 +13,7 @@ val project = Project(
   base = file(".")
 ).settings(
   libraryDependencies ++= Seq(
+    "com.typesafe.akka" %% "akka-actor" % "2.5.0",
     "com.typesafe.akka" %% "akka-http" % "10.0.0",
     "de.heikoseeberger" %% "akka-http-circe" % "1.15.0", // for play-json lib support
     "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.0"
