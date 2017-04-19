@@ -1,5 +1,6 @@
 package repos
 
+import common.FreshDbContext
 import models.Movie
 import org.scalatest.{AsyncWordSpec, Matchers}
 import play.api.libs.json.{JsObject, Json}
@@ -7,7 +8,7 @@ import play.api.libs.json.{JsObject, Json}
 import scala.concurrent.Await
 import scala.concurrent.duration.{DurationLong, FiniteDuration}
 
-class MovieRepoTest extends AsyncWordSpec with Matchers {
+class MovieRepoTest extends AsyncWordSpec with Matchers with FreshDbContext {
   val atMost: FiniteDuration = 10.seconds
 
   "MovieRepo" should {

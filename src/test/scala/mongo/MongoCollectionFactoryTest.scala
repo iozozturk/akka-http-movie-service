@@ -1,12 +1,13 @@
 package mongo
 
+import common.FreshDbContext
 import org.scalatest.{AsyncWordSpec, Matchers}
 import play.api.libs.json.Json
 
 import scala.concurrent.Await
 import scala.concurrent.duration.{DurationLong, FiniteDuration}
 
-class MongoCollectionFactoryTest extends AsyncWordSpec with Matchers {
+class MongoCollectionFactoryTest extends AsyncWordSpec with Matchers with FreshDbContext {
 
   private val collection = new MongoCollectionFactory().makeCollection("test-coll")
   val atMost: FiniteDuration = 10.seconds
