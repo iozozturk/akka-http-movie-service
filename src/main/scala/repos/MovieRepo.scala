@@ -2,6 +2,7 @@ package repos
 
 import models.Movie
 import mongo.MongoCollectionFactory
+import org.mongodb.scala.Completed
 import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -11,7 +12,7 @@ object MovieRepo {
   private val coll = new MongoCollectionFactory().makeCollection("movies")
   implicit val movieFormats = Json.format[Movie]
 
-  def createMovie(movie: Movie) = {
+  def createMovie(movie: Movie): Future[Completed] = {
     coll.insert(movie.json)
   }
 

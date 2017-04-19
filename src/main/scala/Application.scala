@@ -7,6 +7,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.pattern.ask
 import akka.util.Timeout
@@ -18,7 +19,7 @@ import spray.json.DefaultJsonProtocol
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationLong
 
-trait Protocols extends SprayJsonSupport with DefaultJsonProtocol {
+protected trait Protocols extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val um: Unmarshaller[HttpEntity, JsObject] = {
     Unmarshaller.byteStringUnmarshaller.mapWithCharset { (data, charset) =>
       Json.parse(data.toArray).as[JsObject]
@@ -26,11 +27,11 @@ trait Protocols extends SprayJsonSupport with DefaultJsonProtocol {
   }
 }
 
-trait MovieService extends Protocols with MovieSystem {
+protected trait MovieService extends Protocols with MovieSystem {
   private val movieActor = ActorRegistry.movieActor
   implicit val timeout = Timeout(10 seconds)
 
-  val route =
+  val route: Route =
     path("movies") {
       post {
         entity(as[JsObject]) { movieJson =>
