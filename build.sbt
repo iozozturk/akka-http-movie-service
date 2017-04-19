@@ -26,7 +26,10 @@ val project = Project(
   ),
   javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m"),
   Keys.fork in run := true,
-  mainClass in(Compile, run) := Some("Application")
+  mainClass in(Compile, run) := Some("Application"),
+  fork in Test := true,
+
+  javaOptions in Test += "-Dconfig.resource=test.conf"
 )
 
 Revolver.settings
