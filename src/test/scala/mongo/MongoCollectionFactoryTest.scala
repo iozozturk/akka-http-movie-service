@@ -8,7 +8,7 @@ import scala.concurrent.duration.{DurationLong, FiniteDuration}
 
 class MongoCollectionFactoryTest extends AsyncWordSpec with Matchers {
 
-  private val collection = new MongoCollectionFactory().makeCollection("test-coll", Mongo.testDb)
+  private val collection = new MongoCollectionFactory().makeCollection("test-coll")
   val atMost: FiniteDuration = 10.seconds
 
   "MongoCollectionFactory" should {

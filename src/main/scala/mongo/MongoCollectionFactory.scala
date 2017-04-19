@@ -12,9 +12,11 @@ import scala.concurrent.Future
 @Singleton
 class MongoCollectionFactory {
 
-  def makeCollection(collName: String, db: MongoDatabase = Mongo.db) = new MongoCollection(collName, db)
+  def makeCollection(collName: String) = new MongoCollection(collName)
 
-  class MongoCollection(val collName: String, db: MongoDatabase) {
+  class MongoCollection(val collName: String) {
+
+    val db = Mongo.db
 
     def coll = db.getCollection(collName)
 
