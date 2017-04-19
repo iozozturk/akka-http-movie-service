@@ -58,7 +58,7 @@ object Application extends MovieService {
 
     val binding = Await.result(Http().bindAndHandle(route, "0.0.0.0", 9000), 3.seconds)
 
-    println("Started server at 0.0.0.0:9000")
+    println(s"Started server at ${binding.localAddress}")
   }
 
 }
