@@ -8,6 +8,7 @@ import play.api.libs.json.{JsObject, Json}
 
 import scala.concurrent.Future
 
+
 @Singleton
 class MongoCollectionFactory {
 
@@ -17,10 +18,16 @@ class MongoCollectionFactory {
 
     def coll = db.getCollection(collName)
 
+    def find(query: JsObject = Json.obj()): Future[Seq[JsObject]] = {
+      coll.find(Document(query.toString())).map { d =>
+        Json.parse(d.toJson()).as[JsObject]
+      }.toFuture()
+    }
+
     def findById(id: String) = {
       coll.find(Filters.eq("_id", id)).map { doc =>
         Json.parse(doc.toJson()).as[JsObject]
-      }
+      }.head()
     }
 
     def insert(data: JsObject): Future[Completed] = {
