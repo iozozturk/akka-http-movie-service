@@ -23,12 +23,20 @@ class MovieRepoTest extends AsyncWordSpec with Matchers with FreshDbContext {
         |}
       """.stripMargin).as[JsObject])
 
-    "insert movie to db" in {
+    "insert movie" in {
       Await.ready(MovieRepo.createMovie(movie), atMost).map(s => assert(true))
     }
-    "find movie from db" in {
+
+    "find movie" in {
       Await.ready(MovieRepo.createMovie(movie), atMost)
       Await.ready(MovieRepo.findMovie("id"), atMost).map { movie =>
+        movie.imdbId shouldEqual "tt01"
+      }
+    }
+
+    "find movie by ImdbId" in {
+      Await.ready(MovieRepo.createMovie(movie), atMost)
+      Await.ready(MovieRepo.findMovieByImdbId("tt01"), atMost).map { movie =>
         movie.imdbId shouldEqual "tt01"
       }
     }
