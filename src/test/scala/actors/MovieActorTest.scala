@@ -23,7 +23,7 @@ class MovieActorTest extends TestKit(ActorSystem("TestKitUsageSpec"))
   val movieActorRef = TestActorRef(new MovieActor(movieRepo))
   val movieActor = movieActorRef.underlyingActor
 
-  "movie actor" should {
+  "Movie Actor" should {
 
     "reply with RegisterSuccess message when movie does not exist" in {
       when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future.failed(new Exception())

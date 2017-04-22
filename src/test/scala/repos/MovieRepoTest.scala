@@ -11,7 +11,7 @@ import scala.concurrent.duration.{DurationLong, FiniteDuration}
 class MovieRepoTest extends AsyncWordSpec with Matchers with FreshDbContext {
   val atMost: FiniteDuration = 10.seconds
 
-  "movieRepo" should {
+  "Movie Repo" should {
     val movie = Movie(Json.parse(
       """
         |{
