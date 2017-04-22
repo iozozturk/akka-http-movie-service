@@ -22,17 +22,16 @@ class MovieActor(movieRepo: MovieRepo) extends Actor with ActorLogging {
   override def receive: Receive = {
     case RegisterMovie(movie) =>
       log.info(s"Registering new movie:$movie")
-      checkAndRegisterMovie(movie).pipeTo(sender())
+      checkAndRegisterMovie(movie) pipeTo sender()
     case _ =>
       log.error("Unknown request")
       sender ! RegisterError
   }
 
   private def checkAndRegisterMovie(movie: Movie): Future[RegisterResult] = {
-    movieRepo.findMovieByImdbId(movie.imdbId).map { _ =>
+    movieRepo.findMovieByImdbId(movie.imdbId).map { movie =>
       AlreadyRegistered()
     }.fallbackTo {
-      if(movieRepo.createMovie(movie) == null) println("method2")
       movieRepo.createMovie(movie).map(_ => RegisterSuccess())
     }
   }

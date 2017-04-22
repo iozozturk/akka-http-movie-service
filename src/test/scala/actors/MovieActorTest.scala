@@ -49,7 +49,5 @@ class MovieActorTest extends TestKit(ActorSystem("TestKitUsageSpec"))
       }
     }
 
-
   }
-
 }

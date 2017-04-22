@@ -1,11 +1,12 @@
 package mongo
 
 import com.google.inject.Singleton
+import org.mongodb.scala.Completed
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
-import org.mongodb.scala.{Completed, MongoDatabase}
 import play.api.libs.json.{JsObject, Json}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
@@ -24,6 +25,12 @@ class MongoCollectionFactory {
       coll.find(Document(query.toString())).map { d =>
         Json.parse(d.toJson()).as[JsObject]
       }.toFuture()
+    }
+
+    def findOne(query: JsObject = Json.obj()): Future[JsObject] = {
+      coll.find(Document(query.toString())).map { d =>
+        Json.parse(d.toJson()).as[JsObject]
+      }.head().filter(_ != null)
     }
 
     def findById(id: String) = {

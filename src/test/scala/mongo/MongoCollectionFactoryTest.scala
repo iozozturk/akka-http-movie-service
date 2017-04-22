@@ -38,6 +38,17 @@ class MongoCollectionFactoryTest extends AsyncWordSpec with Matchers with FreshD
         (docs.head \ "_id").get.as[String] shouldEqual "123"
       }
     }
+
+    "find only one entity with custom query" in {
+      val doc = Json.obj("_id" -> "123")
+      val query = Json.obj("_id" -> "123")
+      Await.ready(collection.insert(doc), atMost)
+
+      Await.ready(collection.findOne(query), atMost).map { doc =>
+        (doc \ "_id").isDefined shouldEqual true
+        (doc \ "_id").get.as[String] shouldEqual "123"
+      }
+    }
   }
 
 }

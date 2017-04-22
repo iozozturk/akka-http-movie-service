@@ -23,6 +23,6 @@ class MovieRepo {
   }
 
   def findMovieByImdbId(imdbId: String): Future[Movie] = {
-    coll.find(Json.obj("imdbId" -> JsString(imdbId))).map(ms => Movie(ms.head))
+    coll.findOne(Json.obj("imdbId" -> JsString(imdbId))).map(m => Movie(m))
   }
 }

@@ -41,9 +41,8 @@ class MovieService @Inject()(actorRegistry: ActorRegistry) extends Protocols wit
           val registerResult = movieActor.ask(RegisterMovie(movie))(timeout, sender = mainActor)
           onSuccess(registerResult.map {
             case RegisterSuccess() => complete(OK, s"Movie: ${movie.title} registered")
-            case RegisterError() => complete(InternalServerError, s"Movie: ${movie.title} not registered")
             case AlreadyRegistered() => complete(Forbidden, s"Movie: ${movie.title} already registered")
-            case e => complete(InternalServerError, s"Movie: ${movie.title} not registered")
+            case RegisterError() => complete(InternalServerError, s"Movie: ${movie.title} not registered")
           }) { res => res }
         }
       }
