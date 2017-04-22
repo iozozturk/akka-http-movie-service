@@ -11,7 +11,7 @@ import scala.concurrent.duration.{DurationLong, FiniteDuration}
 class MovieRepoTest extends AsyncWordSpec with Matchers with FreshDbContext {
   val atMost: FiniteDuration = 10.seconds
 
-  "MovieRepo" should {
+  "movieRepo" should {
     val movie = Movie(Json.parse(
       """
         |{
@@ -23,20 +23,22 @@ class MovieRepoTest extends AsyncWordSpec with Matchers with FreshDbContext {
         |}
       """.stripMargin).as[JsObject])
 
+    val movieRepo = new MovieRepo
+
     "insert movie" in {
-      Await.ready(MovieRepo.createMovie(movie), atMost).map(s => assert(true))
+      Await.ready(movieRepo.createMovie(movie), atMost).map(s => assert(true))
     }
 
     "find movie" in {
-      Await.ready(MovieRepo.createMovie(movie), atMost)
-      Await.ready(MovieRepo.findMovie("id"), atMost).map { movie =>
+      Await.ready(movieRepo.createMovie(movie), atMost)
+      Await.ready(movieRepo.findMovie("id"), atMost).map { movie =>
         movie.imdbId shouldEqual "tt01"
       }
     }
 
     "find movie by ImdbId" in {
-      Await.ready(MovieRepo.createMovie(movie), atMost)
-      Await.ready(MovieRepo.findMovieByImdbId("tt01"), atMost).map { movie =>
+      Await.ready(movieRepo.createMovie(movie), atMost)
+      Await.ready(movieRepo.findMovieByImdbId("tt01"), atMost).map { movie =>
         movie.imdbId shouldEqual "tt01"
       }
     }

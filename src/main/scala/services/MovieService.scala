@@ -3,6 +3,7 @@ package services
 import java.util.UUID
 
 import actors.{RegisterError, RegisterMovie, RegisterSuccess}
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.StatusCodes.{InternalServerError, OK}
@@ -11,6 +12,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.pattern.ask
 import akka.util.Timeout
+import com.google.inject.Inject
 import common.{ActorRegistry, MovieSystem}
 import models.Movie
 import play.api.libs.json.{JsObject, JsString, Json}
@@ -26,8 +28,8 @@ protected trait Protocols extends SprayJsonSupport with DefaultJsonProtocol {
   }
 }
 
-trait MovieService extends Protocols with MovieSystem {
-  private val movieActor = ActorRegistry.movieActor
+class MovieService @Inject()(actorRegistry: ActorRegistry) extends Protocols with MovieSystem {
+  private val movieActor = actorRegistry.movieActor
   implicit val timeout = Timeout(10 seconds)
 
   val route: Route =
@@ -49,4 +51,5 @@ trait MovieService extends Protocols with MovieSystem {
           ???
         }
       }
+  override val logger: LoggingAdapter = Logging(system, getClass)
 }

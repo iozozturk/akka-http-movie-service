@@ -1,5 +1,6 @@
 package repos
 
+import com.google.inject.Singleton
 import models.Movie
 import mongo.MongoCollectionFactory
 import org.mongodb.scala.Completed
@@ -8,7 +9,8 @@ import play.api.libs.json.{JsString, Json}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object MovieRepo {
+@Singleton
+class MovieRepo {
   private val coll = new MongoCollectionFactory().makeCollection("movies")
   implicit val movieFormats = Json.format[Movie]
 
