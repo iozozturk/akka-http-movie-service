@@ -26,31 +26,28 @@ class MovieActorTest extends TestKit(ActorSystem("TestKitUsageSpec"))
   "movie actor" should {
 
     "reply with RegisterSuccess message when movie does not exist" in {
-//      when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future.failed(new Exception())
+      when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future.failed(new Exception())
       when(movieRepo.createMovie(movie)) thenReturn Future {
         new Completed
       }
 
       val reply = movieActorRef ? RegisterMovie(movie)
       reply.map {
-        case RegisterSuccess => assert(true)
+        case RegisterSuccess() => assert(true)
         case m => assert(false, s"Actor replied with unexpected message:$m")
       }
-
-
     }
 
-    //    "reply with AlreadyRegistered message when movie registered before" in {
-    //      val probe = TestProbe("movieActor")
-    //      when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
-    //        movie
-    //      }
-    //      when(movieRepo.createMovie(movie)) thenReturn Future.failed(new Exception())
-    //      val future = probe.ref ? RegisterMovie(movie)
-    //      probe.expectMsg(3 seconds, RegisterMovie(movie))
-    //      probe.reply(AlreadyRegistered)
-    //      assert(future.isCompleted && future.value.contains(Success(AlreadyRegistered)))
-    //    }
+    "reply with AlreadyRegistered message when movie registered before" in {
+      when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
+        movie
+      }
+      val reply = movieActorRef ? RegisterMovie(movie)
+      reply.map {
+        case AlreadyRegistered() => assert(true)
+        case m => assert(false, s"Actor replied with unexpected message:$m")
+      }
+    }
 
 
   }
