@@ -32,7 +32,17 @@ class MovieActor(movieRepo: MovieRepo) extends Actor with ActorLogging {
     movieRepo.findMovieByImdbId(movie.imdbId).map { _ =>
       AlreadyRegistered()
     }.fallbackTo {
+      if(movieRepo.createMovie(movie) == null) println("method2")
       movieRepo.createMovie(movie).map(_ => RegisterSuccess())
     }
   }
+}
+
+class MainActor extends Actor with ActorLogging {
+
+  override def receive: Receive = {
+    case _ =>
+      log.error("Unknown request")
+  }
+
 }
