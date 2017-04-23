@@ -2,7 +2,7 @@ package httpservices
 
 import java.util.UUID
 
-import actors.RegisterMovie
+import actors.{RegisterMovie, ReserveMovie}
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpEntity
@@ -14,9 +14,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.google.inject.Inject
 import common.{ActorRegistry, MovieSystem}
-import models.Movie
+import models.{Movie, Reservation}
 import play.api.libs.json.{JsObject, JsString, Json}
-import services.{AlreadyRegistered, RegisterError, RegisterSuccess}
+import services._
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration.DurationInt
@@ -33,6 +33,7 @@ class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols
   private val movieActor = actorRegistry.movieActor
   private val mainActor = actorRegistry.mainActor
   implicit val timeout = Timeout(10 seconds)
+  override val logger: LoggingAdapter = Logging(system, getClass)
 
   val route: Route =
     path("movies") {
@@ -51,8 +52,16 @@ class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols
     } ~
       path("reservations") {
         post {
-          ???
+          entity(as[JsObject]) { reservationJson =>
+            val reservation = Reservation(reservationJson)
+            logger.info(s"Reservation: $reservation requested")
+            val reservationResult = movieActor.ask(ReserveMovie(reservation))(timeout, sender = mainActor)
+            onSuccess(reservationResult.map {
+              case ReservationSuccess() => complete(OK, s"Movie reserved: $reservation")
+              case ReservationError(message) => complete(Forbidden, s"Movie could not be reserved: $message")
+            }) { res => res }
+          }
         }
       }
-  override val logger: LoggingAdapter = Logging(system, getClass)
+
 }

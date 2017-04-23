@@ -2,12 +2,13 @@ package actors
 
 import akka.actor.{Actor, ActorLogging}
 import akka.pattern.pipe
-import models.Movie
+import models.{Movie, Reservation}
 import services.{MovieService, RegisterError}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class RegisterMovie(movie: Movie)
+case class ReserveMovie(reservation:Reservation)
 
 class MovieActor(movieService: MovieService) extends Actor with ActorLogging {
 
@@ -15,6 +16,9 @@ class MovieActor(movieService: MovieService) extends Actor with ActorLogging {
     case RegisterMovie(movie) =>
       log.info(s"Registering new movie:$movie")
       movieService.checkAndRegisterMovie(movie) pipeTo sender()
+    case ReserveMovie(reservation) =>
+      log.info(s"Reserving movie:$reservation")
+      movieService.reserve(reservation) pipeTo sender()
     case _ =>
       log.error("Unknown request")
       sender ! RegisterError
