@@ -27,6 +27,12 @@ class MongoCollectionFactory {
       }.toFuture()
     }
 
+    def findAndUpdate(query: JsObject, update: JsObject): Future[JsObject] = {
+      coll.findOneAndUpdate(Document(query.toString()), Document(Json.obj("$set" -> update).toString())).map { d =>
+        Json.parse(d.toJson()).as[JsObject]
+      }.head()
+    }
+
     def findOne(query: JsObject = Json.obj()): Future[JsObject] = {
       coll.find(Document(query.toString())).map { d =>
         Json.parse(d.toJson()).as[JsObject]

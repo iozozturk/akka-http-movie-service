@@ -49,6 +49,20 @@ class MongoCollectionFactoryTest extends AsyncWordSpec with Matchers with FreshD
         (doc \ "_id").get.as[String] shouldEqual "123"
       }
     }
+
+    "find and update entity" in {
+      val doc = Json.obj("_id" -> "123", "title" -> "shawshank")
+      val query = Json.obj("_id" -> "123")
+      val update = Json.obj("title" -> "rock")
+      Await.ready(collection.insert(doc), atMost)
+
+      Await.ready(collection.findAndUpdate(query, update), atMost).map { doc =>
+        Await.ready(collection.findOne(query), atMost).map { doc =>
+          (doc \ "title").isDefined shouldEqual true
+          (doc \ "title").get.as[String] shouldEqual "rock"
+        }
+      }.flatten
+    }
   }
 
 }
