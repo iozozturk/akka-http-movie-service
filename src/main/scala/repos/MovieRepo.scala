@@ -11,6 +11,7 @@ import scala.concurrent.Future
 
 @Singleton
 class MovieRepo {
+
   private val coll = new MongoCollectionFactory().makeCollection("movies")
   implicit val movieFormats = Json.format[Movie]
 
@@ -25,4 +26,10 @@ class MovieRepo {
   def findMovieByImdbId(imdbId: String): Future[Movie] = {
     coll.findOne(Json.obj("imdbId" -> JsString(imdbId))).map(m => Movie(m))
   }
+
+  def setAvailableSeats(movie: Movie, seatCount: Int) = coll.findAndUpdate(
+    Json.obj("imdbId" -> movie.imdbId),
+    Json.obj("availableSeats" -> seatCount)
+  )
+
 }
