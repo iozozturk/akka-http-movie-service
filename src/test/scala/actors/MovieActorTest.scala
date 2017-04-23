@@ -8,7 +8,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncWordSpecLike, Matchers}
 import play.api.libs.json.Json
-import services.{AlreadyRegistered, MovieService, RegisterSuccess, ReservationSuccess}
+import services._
 
 import scala.concurrent.Future
 
@@ -55,6 +55,17 @@ class MovieActorTest extends TestKit(ActorSystem("TestKitUsageSpec"))
       val reply = movieActorRef ? ReserveMovie(reservation)
       reply.map {
         case ReservationSuccess() => assert(true)
+        case m => assert(false, s"Actor replied with unexpected message:$m")
+      }
+    }
+
+    "reply with ReservationInfoSuccess message when movie can be found" in {
+      when(movieService.getMovie(reservation)) thenReturn Future {
+        ReservationInfoSuccess(movie)
+      }
+      val reply = movieActorRef ? CheckMovie(reservation)
+      reply.map {
+        case ReservationInfoSuccess(movie) => assert(true)
         case m => assert(false, s"Actor replied with unexpected message:$m")
       }
     }

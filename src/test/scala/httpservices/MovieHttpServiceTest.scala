@@ -9,7 +9,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncWordSpec, Matchers}
 import play.api.libs.json.Json
-import services.{AlreadyRegistered, MovieService, RegisterSuccess, ReservationSuccess}
+import services._
 
 import scala.concurrent.Future
 
@@ -45,7 +45,6 @@ class MovieHttpServiceTest extends AsyncWordSpec
       }
     }
 
-
     "reserve a movie successfully" in {
       when(movieService.reserve(any[Reservation])) thenReturn
         Future {
@@ -54,6 +53,23 @@ class MovieHttpServiceTest extends AsyncWordSpec
       Post("/reservations", reservation.json.toString()) ~> movieHttpService.route ~> check {
         status shouldEqual StatusCodes.OK
         responseAs[String] shouldEqual "Movie reserved: Reservation({\"imdbId\":\"tt01\",\"screenId\":\"scrId\"})"
+      }
+    }
+
+    "check a movie successfully" in {
+      val fullMovie = Movie(Json.obj(
+        "imdbId" -> "tt01",
+        "title" -> "shawshank",
+        "availableSeats" ->1,
+        "reservedSeats" ->0,
+        "screenId" -> "scr01"))
+      when(movieService.getMovie(any[Reservation])) thenReturn
+        Future {
+          ReservationInfoSuccess(fullMovie)
+        }
+      Get("/movies?imdbId=tt01&screenId=scr01") ~> movieHttpService.route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[String] shouldEqual fullMovie.json.toString()
       }
     }
 

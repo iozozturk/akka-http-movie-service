@@ -68,4 +68,16 @@ class MovieServiceTest extends AsyncWordSpec with Matchers with MockitoSugar {
     }
   }
 
+  "try to find movie information through reservation" in {
+    val movie = Movie(Json.obj("imdbId" -> "tt01", "availableSeats" -> 0))
+    when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
+      movie
+    }
+    val result = movieService.getMovie(reservation)
+    result.map {
+      case ReservationInfoSuccess(movie) => assert(true)
+      case m => assert(false, s"Service replied with unexpected message:$m")
+    }
+  }
+
 }

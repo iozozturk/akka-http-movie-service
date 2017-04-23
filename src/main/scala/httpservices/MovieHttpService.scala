@@ -2,11 +2,11 @@ package httpservices
 
 import java.util.UUID
 
-import actors.{RegisterMovie, ReserveMovie}
+import actors.{CheckMovie, RegisterMovie, ReserveMovie}
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpEntity
-import akka.http.scaladsl.model.StatusCodes.{Forbidden, InternalServerError, OK}
+import akka.http.scaladsl.model.StatusCodes.{Forbidden, InternalServerError, NotFound, OK}
 import akka.http.scaladsl.server.Directives.{as, complete, entity, onSuccess, path, post, _}
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.Unmarshaller
@@ -46,9 +46,22 @@ class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols
             case RegisterSuccess() => complete(OK, s"Movie: ${movie.title} registered")
             case AlreadyRegistered() => complete(Forbidden, s"Movie: ${movie.title} already registered")
             case RegisterError() => complete(InternalServerError, s"Movie: ${movie.title} not registered")
+            case RegisterError() => complete(InternalServerError, s"Movie: ${movie.title} not registered")
           }) { res => res }
         }
-      }
+      } ~
+        get {
+          parameter("imdbId", "screenId") { (imdbId, screenId) =>
+            logger.info(s"Checking movie with $imdbId imdbId")
+            val reservation = Reservation(Json.obj("imdbId" -> imdbId, "screenId" -> screenId))
+            val checkResult = movieActor.ask(CheckMovie(reservation))(timeout, mainActor)
+            onSuccess(checkResult.map {
+              case ReservationInfoSuccess(movie) => complete(OK, movie.json.toString())
+              case ReservationInfoError(cause) => println(">>>res"); complete(NotFound, cause)
+            }) { res => res }
+          }
+
+        }
     } ~
       path("reservations") {
         post {
