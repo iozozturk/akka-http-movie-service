@@ -39,7 +39,7 @@ class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols
     path("movies") {
       post {
         entity(as[JsObject]) { movieJson =>
-          val movie = Movie(movieJson + ("_id" -> JsString(UUID.randomUUID().toString)))
+          val movie = Movie(movieJson + ("_id" -> JsString(UUID.randomUUID().toString)) ++ Json.obj("reservedSeats" -> 0))
           logger.info(s"Movie: ${movie.title} register requested")
           val registerResult = movieActor.ask(RegisterMovie(movie))(timeout, sender = mainActor)
           onSuccess(registerResult.map {

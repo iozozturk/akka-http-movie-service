@@ -31,7 +31,7 @@ class MovieService @Inject()(movieRepo: MovieRepo) {
   def reserve(reservation: Reservation): Future[ReservationResult] = {
     movieRepo.findMovieByImdbId(reservation.imdbId).map { movie =>
       if (movie.availableSeats > 0) {
-        movieRepo.setAvailableSeats(movie, movie.availableSeats - 1).map { _ =>
+        movieRepo.setSeats(movie, movie.availableSeats - 1, movie.reservedSeats + 1).map { _ =>
           ReservationSuccess()
         }
       } else {

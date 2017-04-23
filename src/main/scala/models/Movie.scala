@@ -8,6 +8,7 @@ case class Movie(json: JsObject) {
   lazy val imdbId = (json \ "imdbId").as[String]
   lazy val title = (json \ "title").as[String]
   lazy val availableSeats = (json \ "availableSeats").as[Int]
+  lazy val reservedSeats = (json \ "reservedSeats").as[Int]
   lazy val screenId = (json \ "screenId").as[String]
 
 }

@@ -27,9 +27,9 @@ class MovieRepo {
     coll.findOne(Json.obj("imdbId" -> JsString(imdbId))).map(m => Movie(m))
   }
 
-  def setAvailableSeats(movie: Movie, seatCount: Int) = coll.findAndUpdate(
+  def setSeats(movie: Movie, availableSeatCount: Int, reservedSeatCount: Int) = coll.findAndUpdate(
     Json.obj("imdbId" -> movie.imdbId),
-    Json.obj("availableSeats" -> seatCount)
+    Json.obj("availableSeats" -> availableSeatCount, "reservedSeats" -> reservedSeatCount)
   )
 
 }

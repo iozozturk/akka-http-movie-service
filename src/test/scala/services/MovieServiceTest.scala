@@ -13,7 +13,7 @@ import scala.concurrent.Future
 class MovieServiceTest extends AsyncWordSpec with Matchers with MockitoSugar {
 
   val movieRepo = mock[MovieRepo]
-  val movie = Movie(Json.obj("imdbId" -> "tt01", "availableSeats" -> 1))
+  val movie = Movie(Json.obj("imdbId" -> "tt01", "availableSeats" -> 1, "reservedSeats" -> 1))
   val reservation = Reservation(Json.obj("imdbId" -> "tt01", "screenId" -> "screenId"))
   val movieService = new MovieService(movieRepo)
 
@@ -46,7 +46,7 @@ class MovieServiceTest extends AsyncWordSpec with Matchers with MockitoSugar {
     when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
       movie
     }
-    when(movieRepo.setAvailableSeats(movie, 0)) thenReturn Future {
+    when(movieRepo.setSeats(movie, 0, 2)) thenReturn Future {
       movie.json
     }
     val result = movieService.reserve(reservation)

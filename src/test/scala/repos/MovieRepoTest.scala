@@ -45,9 +45,10 @@ class MovieRepoTest extends AsyncWordSpec with Matchers with FreshDbContext {
 
     "change available seat count" in {
       Await.ready(movieRepo.createMovie(movie), atMost)
-      Await.ready(movieRepo.setAvailableSeats(movie, 100), atMost).map { _ =>
+      Await.ready(movieRepo.setSeats(movie, 1, 1), atMost).map { _ =>
         movieRepo.findMovie(movie._id).map { movieAfterUpdate =>
-          movieAfterUpdate.availableSeats shouldEqual 100
+          movieAfterUpdate.availableSeats shouldEqual 1
+          movieAfterUpdate.reservedSeats shouldEqual 1
         }
       }.flatten
     }
