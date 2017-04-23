@@ -1,20 +1,20 @@
 package services
 
-import models.Movie
+import models.{Movie, Reservation}
 import org.mockito.Mockito.when
 import org.mongodb.scala.Completed
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{AsyncWordSpec, Matchers}
 import play.api.libs.json.Json
 import repos.MovieRepo
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-class MovieServiceTest extends WordSpec with Matchers with MockitoSugar {
+class MovieServiceTest extends AsyncWordSpec with Matchers with MockitoSugar {
 
   val movieRepo = mock[MovieRepo]
-  val movie = Movie(Json.obj("imdbId" -> "tt01"))
+  val movie = Movie(Json.obj("imdbId" -> "tt01", "availableSeats" -> 1))
+  val reservation = Reservation(Json.obj("imdbId" -> "tt01", "screenId" -> "screenId"))
   val movieService = new MovieService(movieRepo)
 
 
@@ -27,7 +27,7 @@ class MovieServiceTest extends WordSpec with Matchers with MockitoSugar {
     val result = movieService.checkAndRegisterMovie(movie)
     result.map {
       case RegisterSuccess() => assert(true)
-      case m => assert(false, s"Actor replied with unexpected message:$m")
+      case m => assert(false, s"Service replied with unexpected message:$m")
     }
   }
 
@@ -38,7 +38,33 @@ class MovieServiceTest extends WordSpec with Matchers with MockitoSugar {
     val result = movieService.checkAndRegisterMovie(movie)
     result.map {
       case AlreadyRegistered() => assert(true)
-      case m => assert(false, s"Actor replied with unexpected message:$m")
+      case m => assert(false, s"Service replied with unexpected message:$m")
+    }
+  }
+
+  "reserve a movie successfully" in {
+    when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
+      movie
+    }
+    when(movieRepo.setAvailableSeats(movie, 0)) thenReturn Future {
+      movie.json
+    }
+    val result = movieService.reserve(reservation)
+    result.map {
+      case ReservationSuccess() => assert(true)
+      case m => assert(false, s"Service replied with unexpected message:$m")
+    }
+  }
+
+  "try to reserve a movie that has not enough room left" in {
+    val movie = Movie(Json.obj("imdbId" -> "tt01", "availableSeats" -> 0))
+    when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
+      movie
+    }
+    val result = movieService.reserve(reservation)
+    result.map {
+      case ReservationError(message) => message shouldEqual "Insufficient room for this movie"
+      case m => assert(false, s"Service replied with unexpected message:$m")
     }
   }
 
