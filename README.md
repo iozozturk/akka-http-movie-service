@@ -1,4 +1,4 @@
-#Movie Service
+# Movie Service
 
 Example micro-service application showcasing a simple http server consuming/serving JSON through http APIs
 
@@ -18,14 +18,14 @@ Example micro-service application showcasing a simple http server consuming/serv
 
 ## Example Usage
 
-#####Run Service for development:
+#### Run Service for development:
 
 ```
 $ sbt 
 > re-start
 ```
 
-#####Register a movie:
+#### Register a movie:
 
 ```
 $ curl -H "Content-Type: application/json" -X POST -d '{
@@ -35,7 +35,7 @@ $ curl -H "Content-Type: application/json" -X POST -d '{
   "screenId": "screenId"
 }' http://localhost:9000/movies
 ```
-#####Reserve a movie:
+#### Reserve a movie:
 
 ```
 $ curl -H "Content-Type: application/json" -X POST -d '{
@@ -44,12 +44,12 @@ $ curl -H "Content-Type: application/json" -X POST -d '{
 }' http://localhost:9000/reservations
 ```
 
-#####Get info about a movie
+#### Get info about a movie
 
 ```
 $ curl http://localhost:9000/movies?imdbId=tt0114500&screenId=screenId
 ```
-Response:
+##### Response:
 ```
 {
   "imdbId": "tt0114500",
@@ -60,7 +60,7 @@ Response:
 }
 ```
 
-#####Testing Services
+#### Testing Services
 ```
 $ sbt test
 ```
