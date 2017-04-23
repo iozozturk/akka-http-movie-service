@@ -18,7 +18,7 @@ class MovieServiceTest extends AsyncWordSpec
   with Matchers with ScalatestRouteTest with MockitoSugar {
 
   private val repo = mock[MovieRepo]
-  val movieService = new MovieService(new ActorRegistry(repo))
+  val movieService = new MovieHttpService(new ActorRegistry(repo))
 
   "Movie Service" should {
     val movie = Movie(Json.obj("imdbId" -> "tt01", "title" -> "shawshank"))

@@ -28,10 +28,11 @@ trait Protocols extends SprayJsonSupport with DefaultJsonProtocol {
   }
 }
 
-class MovieService @Inject()(actorRegistry: ActorRegistry) extends Protocols with MovieSystem {
+class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols with MovieSystem {
   private val movieActor = actorRegistry.movieActor
   private val mainActor = actorRegistry.mainActor
   implicit val timeout = Timeout(10 seconds)
+
   val route: Route =
     path("movies") {
       post {
