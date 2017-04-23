@@ -1,50 +1,45 @@
 package services
 
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import common.ActorRegistry
 import models.Movie
-import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.mongodb.scala.Completed
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{AsyncWordSpec, Matchers}
+import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.json.Json
 import repos.MovieRepo
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-class MovieServiceTest extends AsyncWordSpec
-  with Matchers with ScalatestRouteTest with MockitoSugar {
+class MovieServiceTest extends WordSpec with Matchers with MockitoSugar {
 
-  private val repo = mock[MovieRepo]
-  val movieService = new MovieHttpService(new ActorRegistry(repo))
+  val movieRepo = mock[MovieRepo]
+  val movie = Movie(Json.obj("imdbId" -> "tt01"))
+  val movieService = new MovieService(movieRepo)
 
-  "Movie Service" should {
-    val movie = Movie(Json.obj("imdbId" -> "tt01", "title" -> "shawshank"))
 
-    "register a new movie successfully" in {
-      when(repo.findMovieByImdbId(any[String])) thenReturn
-        Future.failed(new Exception("movie does not exist"))
-      when(repo.createMovie(any[Movie])) thenReturn Future {
-        Completed()
-      }
-      Post("/movies", movie.json.toString()) ~> movieService.route ~> check {
-        status shouldEqual StatusCodes.OK
-        responseAs[String] shouldEqual "Movie: shawshank registered"
-      }
+  "reply with RegisterSuccess message when movie does not exist" in {
+    when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future.failed(new Exception())
+    when(movieRepo.createMovie(movie)) thenReturn Future {
+      new Completed
     }
 
-    "reply with already registered message when movie is already registered" in {
-      when(repo.findMovieByImdbId(any[String])) thenReturn
-        Future {
-          movie
-        }
-      Post("/movies", movie.json.toString()) ~> movieService.route ~> check {
-        status shouldEqual StatusCodes.Forbidden
-        responseAs[String] shouldEqual "Movie: shawshank already registered"
-      }
+    val result = movieService.checkAndRegisterMovie(movie)
+    result.map {
+      case RegisterSuccess() => assert(true)
+      case m => assert(false, s"Actor replied with unexpected message:$m")
     }
-
   }
+
+  "reply with AlreadyRegistered message when movie registered before" in {
+    when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
+      movie
+    }
+    val result = movieService.checkAndRegisterMovie(movie)
+    result.map {
+      case AlreadyRegistered() => assert(true)
+      case m => assert(false, s"Actor replied with unexpected message:$m")
+    }
+  }
+
 }

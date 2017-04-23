@@ -5,11 +5,10 @@ import akka.pattern.ask
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestActorRef, TestKit}
 import models.Movie
 import org.mockito.Mockito.when
-import org.mongodb.scala.Completed
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{AsyncWordSpecLike, Matchers}
 import play.api.libs.json.Json
-import repos.MovieRepo
+import services.{AlreadyRegistered, MovieService, RegisterSuccess}
 
 import scala.concurrent.Future
 
@@ -17,18 +16,17 @@ class MovieActorTest extends TestKit(ActorSystem("TestKitUsageSpec"))
   with DefaultTimeout with ImplicitSender
   with AsyncWordSpecLike with Matchers with MockitoSugar {
 
-  val movieRepo = mock[MovieRepo]
+  val movieService = mock[MovieService]
   val movie = Movie(Json.obj("imdbId" -> "tt01"))
 
-  val movieActorRef = TestActorRef(new MovieActor(movieRepo))
+  val movieActorRef = TestActorRef(new MovieActor(movieService))
   val movieActor = movieActorRef.underlyingActor
 
   "Movie Actor" should {
 
     "reply with RegisterSuccess message when movie does not exist" in {
-      when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future.failed(new Exception())
-      when(movieRepo.createMovie(movie)) thenReturn Future {
-        new Completed
+      when(movieService.checkAndRegisterMovie(movie)) thenReturn Future {
+        RegisterSuccess()
       }
 
       val reply = movieActorRef ? RegisterMovie(movie)
@@ -39,8 +37,8 @@ class MovieActorTest extends TestKit(ActorSystem("TestKitUsageSpec"))
     }
 
     "reply with AlreadyRegistered message when movie registered before" in {
-      when(movieRepo.findMovieByImdbId("tt01")) thenReturn Future {
-        movie
+      when(movieService.checkAndRegisterMovie(movie)) thenReturn Future {
+        AlreadyRegistered()
       }
       val reply = movieActorRef ? RegisterMovie(movie)
       reply.map {

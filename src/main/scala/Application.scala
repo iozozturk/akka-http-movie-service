@@ -2,10 +2,11 @@ import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import com.google.inject.Guice
 import common.{ActorRegistry, MovieSystem}
+import httpservices.MovieHttpService
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import net.codingwell.scalaguice.ScalaModule
 import repos.MovieRepo
-import services.MovieHttpService
+import services.MovieService
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationLong
@@ -31,8 +32,9 @@ object MainModule extends ScalaModule {
 
   override def configure(): Unit = {
 
-    val movieRepo = new MovieRepo
-    bind[ActorRegistry].toInstance(new ActorRegistry(movieRepo))
+    val movieRepo = new MovieRepo()
+    val movieService = new MovieService(movieRepo)
+    bind[ActorRegistry].toInstance(new ActorRegistry(movieService))
 
   }
 }

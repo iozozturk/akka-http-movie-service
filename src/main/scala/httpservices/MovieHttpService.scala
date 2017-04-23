@@ -1,8 +1,8 @@
-package services
+package httpservices
 
 import java.util.UUID
 
-import actors.{AlreadyRegistered, RegisterError, RegisterMovie, RegisterSuccess}
+import actors.RegisterMovie
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.HttpEntity
@@ -16,6 +16,7 @@ import com.google.inject.Inject
 import common.{ActorRegistry, MovieSystem}
 import models.Movie
 import play.api.libs.json.{JsObject, JsString, Json}
+import services.{AlreadyRegistered, RegisterError, RegisterSuccess}
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration.DurationInt
