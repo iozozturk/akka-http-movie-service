@@ -3,6 +3,7 @@ import akka.http.scaladsl.Http
 import com.google.inject.Guice
 import common.{ActorRegistry, MovieSystem}
 import httpservices.MovieHttpService
+import init.IndexMapping
 import net.codingwell.scalaguice.InjectorExtensions.ScalaInjector
 import net.codingwell.scalaguice.ScalaModule
 import repos.MovieRepo
@@ -16,9 +17,10 @@ object Application extends MovieSystem {
   def main(args: Array[String]): Unit = {
 
     val injector = Guice.createInjector()
-
     val movieService = injector.instance[MovieHttpService]
     val route = movieService.route
+
+    IndexMapping.defineIndexes()
 
     val binding = Await.result(Http().bindAndHandle(route, "0.0.0.0", 9000), 3.seconds)
 
@@ -31,10 +33,10 @@ object Application extends MovieSystem {
 object MainModule extends ScalaModule {
 
   override def configure(): Unit = {
-
     val movieRepo = new MovieRepo()
     val movieService = new MovieService(movieRepo)
     bind[ActorRegistry].toInstance(new ActorRegistry(movieService))
 
   }
+
 }

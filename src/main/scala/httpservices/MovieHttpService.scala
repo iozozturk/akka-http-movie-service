@@ -46,7 +46,6 @@ class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols
             case RegisterSuccess() => complete(OK, s"Movie: ${movie.title} registered")
             case AlreadyRegistered() => complete(Forbidden, s"Movie: ${movie.title} already registered")
             case RegisterError() => complete(InternalServerError, s"Movie: ${movie.title} not registered")
-            case RegisterError() => complete(InternalServerError, s"Movie: ${movie.title} not registered")
           }) { res => res }
         }
       } ~
@@ -57,7 +56,7 @@ class MovieHttpService @Inject()(actorRegistry: ActorRegistry) extends Protocols
             val checkResult = movieActor.ask(CheckMovie(reservation))(timeout, mainActor)
             onSuccess(checkResult.map {
               case ReservationInfoSuccess(movie) => complete(OK, movie.json.toString())
-              case ReservationInfoError(cause) => println(">>>res"); complete(NotFound, cause)
+              case ReservationInfoError(cause) => complete(NotFound, cause)
             }) { res => res }
           }
 
